@@ -11,6 +11,8 @@ func main() {
 	runner.Run(1, solutions.SonarSweepWindow)
 	runner.Run(2, solutions.Dive)
 	runner.Run(2, solutions.DiveWithAim)
+	runner.Run(3, solutions.PowerConsumption)
+	runner.Run(3, solutions.LifeSupportRating)
 }
 
 

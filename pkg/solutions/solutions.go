@@ -1,9 +1,10 @@
 package solutions
 
 import (
+	"errors"
+	"fmt"
 	"github.com/evanfpearson/advent-2021/pkg/advent"
-	"strconv"
-	"strings"
+	"math"
 )
 
 // Day One
@@ -40,23 +41,6 @@ func SonarSweepWindow(input *advent.Input) (int, error) {
 }
 
 // Day Two
-
-type Instruction struct {
-	Direction string
-	Distance int
-}
-
-func parse(instruction string) (Instruction, error) {
-	s := strings.SplitN(instruction, " ", 2)
-	dist, err := strconv.Atoi(s[1])
-	if err != nil {
-		return Instruction{}, err
-	}
-	return Instruction{
-		Direction: s[0],
-		Distance:  dist,
-	}, nil
-}
 
 func Dive(input *advent.Input) (int, error) {
 	depth := 0
@@ -100,4 +84,53 @@ func DiveWithAim(input *advent.Input) (int, error) {
 		}
 	}
 	return depth*x, nil
+}
+
+// Day 3
+
+func findGamma(bitList []string) (string, error) {
+	numBits := len(bitList[0])
+	bitCounts := make([]int, numBits)
+	reportLength := len(bitList)
+	for _, bits := range bitList {
+		for i, bit := range bits {
+			if string(bit) == "1" {
+				bitCounts[i]++
+			} else if string(bit) != "0" {
+				return "", errors.New(fmt.Sprintf("input not binary string: %s", bits))
+			}
+		}
+	}
+	gamma := ""
+	for _, c := range bitCounts {
+		if c > reportLength/2 {
+			gamma += "1"
+		} else {
+			gamma += "0"
+		}
+	}
+	return gamma, nil
+}
+
+func PowerConsumption(diagnosticReport *advent.Input) (int, error) {
+	numBits := len((*diagnosticReport)[0])
+	max := int(math.Pow(2, float64(numBits)) - 1)
+	gamma, err := findGamma(*diagnosticReport)
+	if err != nil {
+		return 0, err
+	}
+	gammaInt := Btoi(gamma)
+	return gammaInt * (max - gammaInt), nil
+}
+
+func LifeSupportRating(diagnosticReport *advent.Input) (int, error) {
+	ogr, err := getOxygenGeneratorRating(*diagnosticReport)
+	if err != nil {
+		return 0, err
+	}
+	csr, err := getCO2ScrubberRating(*diagnosticReport)
+	if err != nil {
+		return 0, err
+	}
+	return ogr * csr, nil
 }
