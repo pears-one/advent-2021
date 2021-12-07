@@ -51,6 +51,16 @@ func TestSolutions(t *testing.T) {
 			1924,
 			LosingBingoCardScore,
 		},
+		{
+			5,
+			5,
+			DangerZones,
+		},
+		{
+			5,
+			12,
+			DangerZonesWithDiagonals,
+		},
 	}
 	for _, test := range tests {
 		out, _ := test.solution(&testCases[test.day-1])

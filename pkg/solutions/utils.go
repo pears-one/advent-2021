@@ -198,9 +198,13 @@ func stringsToInts(s []string) ([]int, error) {
 	return ints, nil
 }
 
-func parseDraw(rawDraw string) ([]int, error) {
-	drawStrings := strings.Split(rawDraw, ",")
-	return stringsToInts(drawStrings)
+func parseIntList(lst string, sep ...string) ([]int, error) {
+	s := ","
+	if len(sep) > 0 {
+		s = sep[0]
+	}
+	strs := strings.Split(lst, s)
+	return stringsToInts(strs)
 }
 
 func parseBoard(rawBoard []string) (*Board, error) {
@@ -222,7 +226,7 @@ func parseBoard(rawBoard []string) (*Board, error) {
 
 func ParseBingoGame(input *advent.Input) (*BingoGame, error) {
 	rawDraw := (*input)[0]
-	draw, err := parseDraw(rawDraw)
+	draw, err := parseIntList(rawDraw)
 	if err != nil {
 		return nil, err
 	}
@@ -254,4 +258,119 @@ func (b *Board) IsWon(draw mapset.Set) bool {
 
 func CalculateScore(board *Board, draw mapset.Set, lastDrawn int) int {
 	return lastDrawn * sumSet(board.All.Difference(draw))
+}
+
+// day 5
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func diff(a, b int) int {
+	if a < b {
+		return b - a
+	}
+	return a - b
+}
+
+type Point struct {
+	x int
+	y int
+}
+
+type VentMap map[Point]int
+
+func parsePoint(pointStr string) (*Point, error) {
+	coords, err := parseIntList(pointStr)
+	if err != nil {
+		return nil, err
+	}
+	return &Point{x: coords[0], y: coords[1]}, nil
+}
+
+func parsePoints(inputLine string) (*Point, *Point, error) {
+	points := strings.SplitN(inputLine, " -> ", 2)
+	a, err := parsePoint(points[0])
+	if err != nil {
+		return nil, nil, err
+	}
+	b, err := parsePoint(points[1])
+	return a, b, err
+}
+
+func verticalLineFromPoints(a, b *Point) []Point {
+	numPoints := diff(a.y, b.y) + 1
+	points := make([]Point, numPoints)
+	s := min(a.y, b.y)
+	for i := range points {
+		points[i] = Point{
+			x: a.x,
+			y: s + i,
+		}
+	}
+	return points
+}
+
+func horizontalLineFromPoints(a, b *Point) []Point {
+	numPoints := diff(a.x, b.x) + 1
+	points := make([]Point, numPoints)
+	s := min(a.x, b.x)
+	for i := range points {
+		points[i] = Point{
+			x: s + i,
+			y: a.y,
+		}
+	}
+	return points
+}
+
+func diagonalLineFromPoints(a, b *Point) []Point {
+	xDirection := 1
+	yDirection := 1
+	if a.x > b.x {
+		xDirection = -1
+	}
+	if a.y > b.y {
+		yDirection = -1
+	}
+	numPoints := diff(a.x, b.x) + 1
+	points := make([]Point, numPoints)
+	for i := range points {
+		points[i] = Point{
+			x: a.x + (i * xDirection),
+			y: a.y + (i * yDirection),
+		}
+	}
+	return points
+}
+
+func lineFromPoints(a, b *Point, diag bool) []Point {
+	if a.x == b.x {
+		return verticalLineFromPoints(a, b)
+	}
+	if a.y == b.y {
+		return horizontalLineFromPoints(a, b)
+	}
+	if diag {
+		return diagonalLineFromPoints(a, b)
+	}
+	return nil
+}
+
+func ParseVentMap(input *advent.Input, diag bool) (VentMap, error) {
+	m := make(VentMap)
+	for _, inputLine := range *input {
+		a, b, err := parsePoints(inputLine)
+		if err != nil {
+			return nil, err
+		}
+		line := lineFromPoints(a, b, diag)
+		for _, point := range line {
+			m[point]++
+		}
+	}
+	return m, nil
 }

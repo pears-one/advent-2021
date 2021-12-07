@@ -117,12 +117,12 @@ func WinningBingoCardScore(input *advent.Input) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	drawSet := mapset.NewSet()
+	drawn := mapset.NewSet()
 	for _, n := range game.Draw {
-		drawSet.Add(n)
+		drawn.Add(n)
 		for _, board := range game.Boards {
-			if board.IsWon(drawSet) {
-				return CalculateScore(board, drawSet, n), nil
+			if board.IsWon(drawn) {
+				return CalculateScore(board, drawn, n), nil
 			}
 		}
 	}
@@ -143,14 +143,44 @@ func LosingBingoCardScore(input *advent.Input) (int, error) {
 		for _, board := range boards {
 			if board.IsWon(drawn) {
 				gamesWon++
-				if gamesWon == game.NumBoards {
-					return CalculateScore(board, drawn, n), nil
-				}
 			} else {
 				remainingBoards = append(remainingBoards, board)
+			}
+			if gamesWon == game.NumBoards { // this is the last board to be completed
+				return CalculateScore(board, drawn, n), nil
 			}
 		}
 		boards = remainingBoards
 	}
 	return 0, nil
+}
+
+// Day 5
+
+func DangerZones(input *advent.Input) (int, error) {
+	m, err := ParseVentMap(input, false)
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	for _, strength := range m {
+		if strength >= 2 {
+			n++
+		}
+	}
+	return n, nil
+}
+
+func DangerZonesWithDiagonals(input *advent.Input) (int, error) {
+	m, err := ParseVentMap(input, true)
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	for _, strength := range m {
+		if strength >= 2 {
+			n++
+		}
+	}
+	return n, nil
 }

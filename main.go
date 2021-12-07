@@ -15,6 +15,8 @@ func main() {
 	runner.Run(3, solutions.LifeSupportRating)
 	runner.Run(4, solutions.WinningBingoCardScore)
 	runner.Run(4, solutions.LosingBingoCardScore)
+	runner.Run(5, solutions.DangerZones)
+	runner.Run(5, solutions.DangerZonesWithDiagonals)
 }
 
 
