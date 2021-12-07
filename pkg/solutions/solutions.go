@@ -1,8 +1,7 @@
 package solutions
 
 import (
-	"errors"
-	"fmt"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/evanfpearson/advent-2021/pkg/advent"
 	"math"
 )
@@ -88,30 +87,6 @@ func DiveWithAim(input *advent.Input) (int, error) {
 
 // Day 3
 
-func findGamma(bitList []string) (string, error) {
-	numBits := len(bitList[0])
-	bitCounts := make([]int, numBits)
-	reportLength := len(bitList)
-	for _, bits := range bitList {
-		for i, bit := range bits {
-			if string(bit) == "1" {
-				bitCounts[i]++
-			} else if string(bit) != "0" {
-				return "", errors.New(fmt.Sprintf("input not binary string: %s", bits))
-			}
-		}
-	}
-	gamma := ""
-	for _, c := range bitCounts {
-		if c > reportLength/2 {
-			gamma += "1"
-		} else {
-			gamma += "0"
-		}
-	}
-	return gamma, nil
-}
-
 func PowerConsumption(diagnosticReport *advent.Input) (int, error) {
 	numBits := len((*diagnosticReport)[0])
 	max := int(math.Pow(2, float64(numBits)) - 1)
@@ -133,4 +108,49 @@ func LifeSupportRating(diagnosticReport *advent.Input) (int, error) {
 		return 0, err
 	}
 	return ogr * csr, nil
+}
+
+// Day 4
+
+func WinningBingoCardScore(input *advent.Input) (int, error) {
+	game, err := ParseBingoGame(input)
+	if err != nil {
+		return 0, err
+	}
+	drawSet := mapset.NewSet()
+	for _, n := range game.Draw {
+		drawSet.Add(n)
+		for _, board := range game.Boards {
+			if board.IsWon(drawSet) {
+				return CalculateScore(board, drawSet, n), nil
+			}
+		}
+	}
+	return 0, nil
+}
+
+func LosingBingoCardScore(input *advent.Input) (int, error) {
+	game, err := ParseBingoGame(input)
+	if err != nil {
+		return 0, err
+	}
+	drawn := mapset.NewSet()
+	var gamesWon int
+	boards := game.Boards
+	for _, n := range game.Draw {
+		drawn.Add(n)
+		var remainingBoards []*Board
+		for _, board := range boards {
+			if board.IsWon(drawn) {
+				gamesWon++
+				if gamesWon == game.NumBoards {
+					return CalculateScore(board, drawn, n), nil
+				}
+			} else {
+				remainingBoards = append(remainingBoards, board)
+			}
+		}
+		boards = remainingBoards
+	}
+	return 0, nil
 }

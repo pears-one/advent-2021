@@ -13,6 +13,8 @@ func main() {
 	runner.Run(2, solutions.DiveWithAim)
 	runner.Run(3, solutions.PowerConsumption)
 	runner.Run(3, solutions.LifeSupportRating)
+	runner.Run(4, solutions.WinningBingoCardScore)
+	runner.Run(4, solutions.LosingBingoCardScore)
 }
 
 
