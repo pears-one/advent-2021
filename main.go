@@ -17,6 +17,8 @@ func main() {
 	runner.Run(4, solutions.LosingBingoCardScore)
 	runner.Run(5, solutions.DangerZones)
 	runner.Run(5, solutions.DangerZonesWithDiagonals)
+	runner.Run(6, solutions.LanternfishPopulation80Days)
+	runner.Run(6, solutions.LanternfishPopulation256Days)
 }
 
 

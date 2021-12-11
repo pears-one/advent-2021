@@ -61,6 +61,17 @@ func TestSolutions(t *testing.T) {
 			12,
 			DangerZonesWithDiagonals,
 		},
+		{
+			6,
+			5934,
+			LanternfishPopulation80Days,
+		},
+
+		{
+			6,
+			26984457539,
+			LanternfishPopulation256Days,
+		},
 	}
 	for _, test := range tests {
 		out, _ := test.solution(&testCases[test.day-1])

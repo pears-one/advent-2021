@@ -184,3 +184,59 @@ func DangerZonesWithDiagonals(input *advent.Input) (int, error) {
 	}
 	return n, nil
 }
+
+// Day 6
+
+type LanternfishPopulation []int
+
+func parsePopulation(input *advent.Input) (*LanternfishPopulation, error) {
+	population, err := parseIntList((*input)[0], ",")
+	if err != nil {
+		return nil, err
+	}
+	model := make(LanternfishPopulation, 9)
+	for _, numDays := range population {
+		model[numDays]++
+	}
+	return &model, nil
+}
+
+func (p *LanternfishPopulation) NextDay() {
+	nextDay := make([]int, 9)
+	for i := 0; i < 7; i++ {
+		nextDay[i] = (*p)[(i+1)%7]
+	}
+	nextDay[8] = (*p)[0]
+	nextDay[6] += (*p)[7]
+	nextDay[7] += (*p)[8]
+	*p = nextDay
+}
+
+func (p *LanternfishPopulation) Size() int {
+	return sum(*p)
+}
+
+func (p *LanternfishPopulation) After(numDays int) {
+	for i := 0; i < numDays; i++ {
+		p.NextDay()
+	}
+}
+
+func LanternfishPopulation80Days(input *advent.Input) (int, error) {
+	population, err := parsePopulation(input)
+	if err != nil {
+		return 0, err
+	}
+	population.After(80)
+	return population.Size(), nil
+}
+
+
+func LanternfishPopulation256Days(input *advent.Input) (int, error) {
+	population, err := parsePopulation(input)
+	if err != nil {
+		return 0, err
+	}
+	population.After(256)
+	return population.Size(), nil
+}
