@@ -19,6 +19,12 @@ func main() {
 	runner.Run(5, solutions.DangerZonesWithDiagonals)
 	runner.Run(6, solutions.LanternfishPopulation80Days)
 	runner.Run(6, solutions.LanternfishPopulation256Days)
+	runner.Run(7, solutions.FuelMinUsageA)
+	runner.Run(7, solutions.FuelMinUsageB)
+	runner.Run(8, solutions.EasySevenSegments)
+	runner.Run(8, solutions.HardSevenSegments)
+	runner.Run(9, solutions.LowPointRiskLevels)
+	runner.Run(9, solutions.FindBasins)
 }
 
 

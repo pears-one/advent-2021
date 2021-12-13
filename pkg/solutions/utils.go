@@ -374,3 +374,313 @@ func ParseVentMap(input *advent.Input, diag bool) (VentMap, error) {
 	}
 	return m, nil
 }
+
+// Day 6
+
+type LanternfishPopulation [9]int
+
+func parsePopulation(input *advent.Input) (*LanternfishPopulation, error) {
+	population, err := parseIntList((*input)[0], ",")
+	if err != nil {
+		return nil, err
+	}
+	var model LanternfishPopulation
+	for _, numDays := range population {
+		model[numDays]++
+	}
+	return &model, nil
+}
+
+func (p *LanternfishPopulation) NextDay() {
+	var nextDay LanternfishPopulation
+	for i := 0; i < 9; i++ {
+		nextDay[i] = (*p)[(i+1)%9]
+	}
+	nextDay[6] += (*p)[0]
+	*p = nextDay
+}
+
+func (p *LanternfishPopulation) Size() int {
+	s := 0
+	for i := 0; i < 9; i++ {
+		s += (*p)[i]
+	}
+	return s
+}
+
+func (p *LanternfishPopulation) After(numDays int) {
+	for i := 0; i < numDays; i++ {
+		p.NextDay()
+	}
+}
+
+// Day 7
+
+func abs(a int) int {
+	if a > 0 {
+		return a
+	}
+	return -a
+}
+
+// Day 8
+
+// SegmentPattern is a set containing all of the runes that make up the
+// signals which constitute a digit on a seven segment display
+type SegmentPattern mapset.Set
+
+func parseSegmentPattern(s string) SegmentPattern {
+	r := mapset.NewSet()
+	for _, runeValue := range s {
+		r.Add(runeValue)
+	}
+	return r
+}
+
+// SegmentKey contains all of the possible segment patterns 0-9. They are stored
+// in a map, where the key is the pattern length.
+type SegmentKey map[int][]SegmentPattern
+
+func parseSegmentKey(pattern string) SegmentKey {
+	p := make(SegmentKey)
+	for _, s := range strings.SplitN(pattern, " ", 10) {
+		segmentPattern := parseSegmentPattern(s)
+		p[segmentPattern.Cardinality()] = append(p[segmentPattern.Cardinality()], segmentPattern)
+	}
+	return p
+}
+
+func (p *SegmentKey) GetCipher() SegmentCipher {
+	c := make(SegmentCipher)
+	c[(*p)[2][0]] = 1
+	c[(*p)[3][0]] = 7
+	c[(*p)[4][0]] = 4
+	c[(*p)[7][0]] = 8
+	sixes := (*p)[6]
+	for i, pattern := range sixes {
+		four := c.GetPattern(4)
+		if four.IsSubset(pattern) {
+			c[pattern] = 9
+			sixes = append(sixes[:i], sixes[i+1:]...)
+		}
+	}
+	for i, pattern := range sixes {
+		if c.GetPattern(1).IsSubset(pattern) {
+			c[pattern] = 0
+			sixes = append(sixes[:i], sixes[i+1:]...)
+		}
+	}
+	c[sixes[0]] = 6
+	fives := (*p)[5]
+	for i, pattern := range fives {
+		if c.GetPattern(1).IsSubset(pattern) {
+			c[pattern] = 3
+			fives = append(fives[:i], fives[i+1:]...)
+		}
+	}
+	for i, pattern := range fives {
+		if pattern.IsSubset(c.GetPattern(6)) {
+			c[pattern] = 5
+			fives = append(fives[:i], fives[i+1:]...)
+		}
+	}
+	c[fives[0]] = 2
+	return c
+}
+
+// Message contains the encrypted four segment patterns in the message.
+type Message [4]SegmentPattern
+
+func parseMessage(msg string) Message {
+	var m Message
+	for i, s := range strings.SplitN(msg, " ", 4) {
+		m[i] = parseSegmentPattern(s)
+	}
+	return m
+}
+
+type EncryptedMessage struct {
+	Key     SegmentKey
+	Message Message
+}
+
+func (s *EncryptedMessage) Decrypt() DecryptedMessage {
+	c := s.Key.GetCipher()
+	var message DecryptedMessage
+	for i, pattern := range s.Message {
+		message[i] = c.Decode(pattern)
+	}
+	return message
+}
+
+func parseEncryptedMessage(input string) EncryptedMessage {
+	splits := strings.SplitN(input, " | ", 2)
+	return EncryptedMessage{
+		Key:     parseSegmentKey(splits[0]),
+		Message: parseMessage(splits[1]),
+	}
+}
+
+type DecryptedMessage [4]int
+
+func (m *DecryptedMessage) ToInt() int {
+	s := 0
+	for i := 0; i < 4; i++ {
+		s += (*m)[i] * int(math.Pow(10, float64(3-i)))
+	}
+	return s
+}
+
+// SegmentCipher is a map from encrypted segment patterns to their decrypted
+// integer values.
+type SegmentCipher map[SegmentPattern]int
+
+func (c *SegmentCipher) Decode(p SegmentPattern) int {
+	for k, v := range *c {
+		if k.Equal(p) {
+			return v
+		}
+	}
+	return 0
+}
+
+func (c *SegmentCipher) GetPattern(n int) SegmentPattern {
+	for k, v := range *c {
+		if v == n {
+			return k
+		}
+	}
+	return nil
+}
+
+// Day 9
+
+type HeightMap [][]int
+
+func (m *HeightMap) IsLowPoint(pt Point) bool {
+	aps := m.GetAdjacentPoints(pt)
+	for _, ap := range aps {
+		ph := m.HeightAt(pt)
+		ah := m.HeightAt(ap)
+		if ah <= ph {
+			return false
+		}
+	}
+	return true
+}
+
+func (m *HeightMap) HeightAt(pt Point) int {
+	return (*m)[pt.y][pt.x]
+}
+
+func (m *HeightMap) RiskLevel(pt Point) int {
+	return m.HeightAt(pt) + 1
+}
+
+func (m *HeightMap) GetAdjacentPoints(pt Point) []Point {
+	ap := []Point{ // adjacent points
+		{pt.x, pt.y-1}, {pt.x, pt.y+1}, {pt.x-1, pt.y}, {pt.x+1, pt.y},
+	}
+	validPts := make([]Point, 0, 4) // filter points off the map
+	for i := range ap {
+		if m.IsOnMap(ap[i]) {
+			validPts = append(validPts, ap[i])
+		}
+	}
+	return validPts
+}
+
+func (m *HeightMap) IsOnMap(pt Point) bool {
+	return pt.x >= 0 && pt.x < m.Width() && pt.y >= 0 && pt.y < m.Height()
+}
+
+func (m *HeightMap) Height() int {
+	return len(*m)
+}
+
+func (m *HeightMap) Width() int {
+	return len((*m)[0])
+}
+
+func getRuneSlice(s string) []rune {
+	r := make([]rune, len(s))
+	for i, runeValue := range s {
+		r[i] = runeValue
+	}
+	return r
+}
+
+func runesToInts(runes []rune) []int {
+	ints := make([]int, len(runes))
+	for i, runeValue := range runes {
+		ints[i] = int(runeValue - '0')
+	}
+	return ints
+}
+
+func parseHeightMap(input *advent.Input) *HeightMap {
+	m := make(HeightMap, len(*input))
+	for i, line := range *input {
+		m[i] = runesToInts(getRuneSlice(line))
+	}
+	return &m
+}
+
+type Basin mapset.Set
+
+type BasinFinder struct {
+	hm *HeightMap
+	visited [][]bool
+	basins []Basin
+}
+
+func (bf *BasinFinder) InBasin(pt Point) bool {
+	if bf.hm.HeightAt(pt) < 9 {
+		return true
+	}
+	return false
+}
+
+func (bf *BasinFinder) HasVisited(pt Point) bool {
+	return bf.visited[pt.y][pt.x]
+}
+
+func (bf *BasinFinder) Visit(pt Point) {
+	bf.visited[pt.y][pt.x] = true
+}
+
+// FindBasinFrom recursively visits all points in a basin from some starting point
+func (bf *BasinFinder) FindBasinFrom(pt Point) {
+	if bf.InBasin(pt) && !bf.HasVisited(pt) {
+		bf.basins[len(bf.basins)-1].Add(pt)
+		bf.Visit(pt)
+		for _, point := range bf.hm.GetAdjacentPoints(pt) {
+			bf.FindBasinFrom(point)
+		}
+	}
+}
+
+func (bf *BasinFinder) FindAll() {
+	for row := 0; row < bf.hm.Height(); row++ {
+		for col := 0; col < bf.hm.Width(); col++ {
+			pt := Point{col, row}
+			if bf.InBasin(pt) && !bf.HasVisited(pt) {
+				bf.basins = append(bf.basins, mapset.NewSet())
+				bf.FindBasinFrom(pt)
+			}
+		}
+	}
+}
+
+func NewBasinFinder(input *advent.Input) BasinFinder {
+	hm := parseHeightMap(input)
+	visited := make([][]bool, hm.Height())
+	for i := range *hm {
+		visited[i] = make([]bool, hm.Width())
+	}
+	return BasinFinder{
+		hm:      hm,
+		visited: visited,
+		basins:  []Basin{},
+	}
+}

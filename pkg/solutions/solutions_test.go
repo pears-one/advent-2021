@@ -66,11 +66,41 @@ func TestSolutions(t *testing.T) {
 			5934,
 			LanternfishPopulation80Days,
 		},
-
 		{
 			6,
 			26984457539,
 			LanternfishPopulation256Days,
+		},
+		{
+			7,
+			37,
+			FuelMinUsageA,
+		},
+		{
+			7,
+			168,
+			FuelMinUsageB,
+		},
+		{
+			8,
+			26,
+			EasySevenSegments,
+		},
+		{
+			8,
+			61229,
+			HardSevenSegments,
+		},
+		{
+			9,
+			15,
+			LowPointRiskLevels,
+		},
+
+		{
+			9,
+			1134,
+			FindBasins,
 		},
 	}
 	for _, test := range tests {

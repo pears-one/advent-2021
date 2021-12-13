@@ -4,6 +4,7 @@ import (
 	mapset "github.com/deckarep/golang-set"
 	"github.com/evanfpearson/advent-2021/pkg/advent"
 	"math"
+	"sort"
 )
 
 // Day One
@@ -187,41 +188,6 @@ func DangerZonesWithDiagonals(input *advent.Input) (int, error) {
 
 // Day 6
 
-type LanternfishPopulation []int
-
-func parsePopulation(input *advent.Input) (*LanternfishPopulation, error) {
-	population, err := parseIntList((*input)[0], ",")
-	if err != nil {
-		return nil, err
-	}
-	model := make(LanternfishPopulation, 9)
-	for _, numDays := range population {
-		model[numDays]++
-	}
-	return &model, nil
-}
-
-func (p *LanternfishPopulation) NextDay() {
-	nextDay := make([]int, 9)
-	for i := 0; i < 7; i++ {
-		nextDay[i] = (*p)[(i+1)%7]
-	}
-	nextDay[8] = (*p)[0]
-	nextDay[6] += (*p)[7]
-	nextDay[7] += (*p)[8]
-	*p = nextDay
-}
-
-func (p *LanternfishPopulation) Size() int {
-	return sum(*p)
-}
-
-func (p *LanternfishPopulation) After(numDays int) {
-	for i := 0; i < numDays; i++ {
-		p.NextDay()
-	}
-}
-
 func LanternfishPopulation80Days(input *advent.Input) (int, error) {
 	population, err := parsePopulation(input)
 	if err != nil {
@@ -231,7 +197,6 @@ func LanternfishPopulation80Days(input *advent.Input) (int, error) {
 	return population.Size(), nil
 }
 
-
 func LanternfishPopulation256Days(input *advent.Input) (int, error) {
 	population, err := parsePopulation(input)
 	if err != nil {
@@ -239,4 +204,115 @@ func LanternfishPopulation256Days(input *advent.Input) (int, error) {
 	}
 	population.After(256)
 	return population.Size(), nil
+}
+
+// Day 7
+
+type CrabPositions []int
+
+func (c *CrabPositions) Sort() {
+	sort.Ints(*c)
+}
+
+func (c *CrabPositions) FindOptimalPosition() int {
+	c.Sort()
+	return (*c)[len(*c)/2]
+}
+
+func LinearUsage(diff int) int {
+	return abs(diff)
+}
+
+func TriangularUsage(diff int) int {
+	return abs(diff)*(abs(diff)+1)/2
+}
+
+func (c *CrabPositions) FuelUsageToPosition(p int, usage func(int) int) int {
+	s := 0
+	for _, cp := range *c {
+		s += usage(cp-p)
+	}
+	return s
+}
+
+func FuelMinUsageA(input *advent.Input) (int, error) {
+	var cp CrabPositions
+	cp, err := parseIntList((*input)[0], ",")
+	if err != nil {
+		return 0, err
+	}
+	return cp.FuelUsageToPosition(cp.FindOptimalPosition(), LinearUsage), nil
+}
+
+func FuelMinUsageB(input *advent.Input) (int, error) {
+	var cp CrabPositions
+	cp, err := parseIntList((*input)[0], ",")
+	if err != nil {
+		return 0, err
+	}
+	cp.Sort()
+	s := cp[0]
+	pu := cp.FuelUsageToPosition(s, TriangularUsage)
+	for {
+		nu := cp.FuelUsageToPosition(s, TriangularUsage)
+		if nu > pu {
+			return pu, nil
+		}
+		pu = nu
+		s++
+	}
+}
+
+// Day 8
+
+func EasySevenSegments(input *advent.Input) (int, error) {
+	uniques := mapset.NewSet(1, 4, 7, 8)
+	s := 0
+	for _, line := range *input {
+		encryptedMessage := parseEncryptedMessage(line)
+		digits := encryptedMessage.Decrypt()
+		for i := 0; i < 4; i++ {
+			if uniques.Contains(digits[i]) {
+				s++
+			}
+		}
+	}
+	return s, nil
+}
+
+func HardSevenSegments(input *advent.Input) (int, error) {
+	s := 0
+	for _, line := range *input {
+		encryptedMessage := parseEncryptedMessage(line)
+		digits := encryptedMessage.Decrypt()
+		s += digits.ToInt()
+	}
+	return s, nil
+}
+
+// Day 9
+
+func LowPointRiskLevels(input *advent.Input) (int, error) {
+	s := 0
+	hm := parseHeightMap(input)
+	for row := 0; row < hm.Height(); row++ {
+		for col := 0; col < hm.Width(); col++ {
+			pt := Point{x: col, y: row}
+			if hm.IsLowPoint(pt) {
+				s += hm.RiskLevel(pt)
+			}
+		}
+	}
+	return s, nil
+}
+
+func FindBasins(input *advent.Input) (int, error) {
+	bf := NewBasinFinder(input)
+	bf.FindAll()
+	basinSizes := make([]int, len(bf.basins))
+	for i, basin := range bf.basins {
+		basinSizes[i] = basin.Cardinality()
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(basinSizes)))
+	return basinSizes[0] * basinSizes[1] * basinSizes[2], nil
 }
