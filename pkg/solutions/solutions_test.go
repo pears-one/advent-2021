@@ -96,11 +96,20 @@ func TestSolutions(t *testing.T) {
 			15,
 			LowPointRiskLevels,
 		},
-
 		{
 			9,
 			1134,
 			FindBasins,
+		},
+		{
+			10,
+			26397,
+			LintBrackets,
+		},
+		{
+			10,
+			288957,
+			AutocompleteBrackets,
 		},
 	}
 	for _, test := range tests {

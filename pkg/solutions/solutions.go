@@ -316,3 +316,58 @@ func FindBasins(input *advent.Input) (int, error) {
 	sort.Sort(sort.Reverse(sort.IntSlice(basinSizes)))
 	return basinSizes[0] * basinSizes[1] * basinSizes[2], nil
 }
+
+// Day 10
+
+func LintBrackets(input *advent.Input) (int, error) {
+	linter := NewLinter(map[rune]rune{
+		'{': '}',
+		'[': ']',
+		'(': ')',
+		'<': '>',
+	})
+	scores := map[rune]int{
+		')': 3,
+		']': 57,
+		'}': 1197,
+		'>': 25137,
+	}
+	s := 0
+	for _, line := range *input {
+		err := linter.Lint(line)
+		lintErr := err.(*LintError)
+		if lintErr.syntax {
+			pos := err.(*LintError).pos
+			s += scores[rune(line[pos])]
+		}
+	}
+	return s, nil
+}
+
+func AutocompleteBrackets(input *advent.Input) (int, error) {
+	linter := NewLinter(map[rune]rune{
+		'{': '}',
+		'[': ']',
+		'(': ')',
+		'<': '>',
+	})
+	scoreByBracket := map[rune]int{
+		')': 1,
+		']': 2,
+		'}': 3,
+		'>': 4,
+	}
+	var scores []int
+	for _, line := range *input {
+		if completed, err := linter.Autocomplete(line); err == nil {
+			score := 0
+			for _, bracket := range completed[len(line):] {
+				score *= 5
+				score += scoreByBracket[bracket]
+			}
+			scores = append(scores, score)
+		}
+	}
+	return median(scores)
+}
+

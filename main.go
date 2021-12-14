@@ -25,6 +25,8 @@ func main() {
 	runner.Run(8, solutions.HardSevenSegments)
 	runner.Run(9, solutions.LowPointRiskLevels)
 	runner.Run(9, solutions.FindBasins)
+	runner.Run(10, solutions.LintBrackets)
+	runner.Run(10, solutions.AutocompleteBrackets)
 }
 
 
