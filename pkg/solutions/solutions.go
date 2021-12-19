@@ -7,39 +7,6 @@ import (
 	"sort"
 )
 
-// Day One
-
-func SonarSweep(input *advent.Input) (int, error) {
-	numIncreases := 0
-	depths, err := input.ToInt()
-	if err != nil {
-		return 0, err
-	}
-	for i := 1; i < len(depths); i++ {
-		if depths[i] > depths[i-1] {
-			numIncreases++
-		}
-	}
-	return numIncreases, nil
-}
-
-func SonarSweepWindow(input *advent.Input) (int, error) {
-	numIncreases := 0
-	windowSize := 3
-	depths, err := input.ToInt()
-	if err != nil {
-		return 0, err
-	}
-	for i := 1; i < len(depths)-windowSize+1; i++ {
-		a := depths[i:i+windowSize]
-		b := depths[i-1:i+windowSize-1]
-		if sum(a) > sum(b) {
-			numIncreases++
-		}
-	}
-	return numIncreases, nil
-}
-
 // Day Two
 
 func Dive(input *advent.Input) (int, error) {

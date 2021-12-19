@@ -2,6 +2,7 @@ package solutions
 
 import (
 	"github.com/evanfpearson/advent-2021/pkg/advent"
+	"github.com/evanfpearson/advent-2021/pkg/solutions/day1"
 	"testing"
 )
 
@@ -14,12 +15,12 @@ func TestSolutions(t *testing.T) {
 		{
 			1,
 			7,
-			SonarSweep,
+			day1.PartA,
 		},
 		{
 			1,
 			5,
-			SonarSweepWindow,
+			day1.PartB,
 		},
 		{
 			2,
