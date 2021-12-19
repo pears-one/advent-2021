@@ -371,3 +371,55 @@ func AutocompleteBrackets(input *advent.Input) (int, error) {
 	return median(scores)
 }
 
+// Day 11
+
+func OctopusFlashes(input *advent.Input) (int,error) {
+	grid := parseOctopusGrid(input)
+	for i := 0; i < 100; i++ {
+		grid.Step()
+	}
+	return grid.totalFlashCount, nil
+}
+
+func OctopusSynchronise(input *advent.Input) (int,error) {
+	grid := parseOctopusGrid(input)
+	i := 0
+	for {
+		i++
+		grid.Step()
+		if grid.isSynchronised() {
+			return i, nil
+		}
+	}
+}
+
+// Day 12
+
+func PassagePathingA(input *advent.Input) (int, error) {
+	cg := parseCaveGraph(input)
+	paths := cg.Walk([]Path{{"start"}}, PartAIsValid)
+	return len(paths), nil
+}
+
+func PassagePathingB(input *advent.Input) (int, error) {
+	cg := parseCaveGraph(input)
+	paths := cg.Walk([]Path{{"start"}}, PartBIsValid)
+	return len(paths), nil
+}
+
+// Day 13
+
+func FirstFold(input *advent.Input) (int, error) {
+	o := parseOrigami(input)
+	o.Fold(0)
+	return o.dots.Cardinality(), nil
+}
+
+func AllFolds(input *advent.Input) (int, error) {
+	o := parseOrigami(input)
+	for n := range o.folds {
+		o.Fold(n)
+	}
+	o.Print()
+	return o.dots.Cardinality(), nil
+}

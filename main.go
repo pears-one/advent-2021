@@ -27,6 +27,11 @@ func main() {
 	runner.Run(9, solutions.FindBasins)
 	runner.Run(10, solutions.LintBrackets)
 	runner.Run(10, solutions.AutocompleteBrackets)
+	runner.Run(11, solutions.OctopusFlashes)
+	runner.Run(11, solutions.OctopusSynchronise)
+	runner.Run(12, solutions.PassagePathingA)
+	runner.Run(12, solutions.PassagePathingB)
+	runner.Run(13, solutions.FirstFold)
 }
 
 

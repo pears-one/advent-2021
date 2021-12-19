@@ -111,6 +111,36 @@ func TestSolutions(t *testing.T) {
 			288957,
 			AutocompleteBrackets,
 		},
+		{
+			11,
+			1656,
+			OctopusFlashes,
+		},
+		{
+			11,
+			195,
+			OctopusSynchronise,
+		},
+		{
+			12,
+			226,
+			PassagePathingA,
+		},
+		{
+			12,
+			3509,
+			PassagePathingB,
+		},
+		{
+			13,
+			17,
+			FirstFold,
+		},
+		{
+			13,
+			16,
+			AllFolds,
+		},
 	}
 	for _, test := range tests {
 		out, _ := test.solution(&testCases[test.day-1])

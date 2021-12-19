@@ -6,6 +6,7 @@ import (
 	mapset "github.com/deckarep/golang-set"
 	"github.com/evanfpearson/advent-2021/pkg/advent"
 	"math"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,7 +34,7 @@ func sumSet(set mapset.Set) int {
 
 type Instruction struct {
 	Direction string
-	Distance int
+	Distance  int
 }
 
 func parse(instruction string) (Instruction, error) {
@@ -154,9 +155,9 @@ func getCO2ScrubberRating(diagnosticReport []string) (int, error) {
 // Day 4
 
 type Board struct {
-	Rows [5]mapset.Set
+	Rows    [5]mapset.Set
 	Columns [5]mapset.Set
-	All mapset.Set
+	All     mapset.Set
 }
 
 func EmptyBoard() *Board {
@@ -182,8 +183,8 @@ func EmptyBoard() *Board {
 }
 
 type BingoGame struct {
-	Draw []int
-	Boards []*Board
+	Draw      []int
+	Boards    []*Board
 	NumBoards int
 }
 
@@ -234,7 +235,7 @@ func ParseBingoGame(input *advent.Input) (*BingoGame, error) {
 	var boards []*Board
 	var rawBoard []string
 	for firstRow := 2; firstRow < len(*input); firstRow += 6 {
-		rawBoard = (*input)[firstRow:firstRow+5]
+		rawBoard = (*input)[firstRow : firstRow+5]
 		board, err := parseBoard(rawBoard)
 		if err != nil {
 			return nil, err
@@ -242,8 +243,8 @@ func ParseBingoGame(input *advent.Input) (*BingoGame, error) {
 		boards = append(boards, board)
 	}
 	return &BingoGame{
-		Draw:   draw,
-		Boards: boards,
+		Draw:      draw,
+		Boards:    boards,
 		NumBoards: len(boards),
 	}, nil
 }
@@ -580,7 +581,7 @@ func (m *HeightMap) RiskLevel(pt Point) int {
 
 func (m *HeightMap) GetAdjacentPoints(pt Point) []Point {
 	ap := []Point{ // adjacent points
-		{pt.x, pt.y-1}, {pt.x, pt.y+1}, {pt.x-1, pt.y}, {pt.x+1, pt.y},
+		{pt.x, pt.y - 1}, {pt.x, pt.y + 1}, {pt.x - 1, pt.y}, {pt.x + 1, pt.y},
 	}
 	validPts := make([]Point, 0, 4) // filter points off the map
 	for i := range ap {
@@ -630,9 +631,9 @@ func parseHeightMap(input *advent.Input) *HeightMap {
 type Basin mapset.Set
 
 type BasinFinder struct {
-	hm *HeightMap
+	hm      *HeightMap
 	visited [][]bool
-	basins []Basin
+	basins  []Basin
 }
 
 func (bf *BasinFinder) InBasin(pt Point) bool {
@@ -689,15 +690,15 @@ func NewBasinFinder(input *advent.Input) BasinFinder {
 // Day 10
 
 type BracketLinter struct {
-	rightsByLefts map[rune]rune
+	rightsByLefts     map[rune]rune
 	rightBracketStack *Stack
 }
 
 type LintError struct {
-	syntax bool
+	syntax     bool
 	incomplete bool
-	pos int
-	message string
+	pos        int
+	message    string
 }
 
 func (e *LintError) Error() string {
@@ -736,7 +737,7 @@ func (l *BracketLinter) Lint(s string) error {
 			syntax:     false,
 			incomplete: true,
 			pos:        -1,
-			message:    fmt.Sprintf("line incomplete, %d chunks unclosed",  l.rightBracketStack.Len()),
+			message:    fmt.Sprintf("line incomplete, %d chunks unclosed", l.rightBracketStack.Len()),
 		}
 	}
 	return nil
@@ -766,8 +767,306 @@ func median(arr []int) (int, error) {
 	if l == 0 {
 		return 0, errors.New("empty array, cannot find median")
 	}
-	if l % 2 == 0 {
-		return (arr[l/2] + arr[l/2-1])/2, nil
+	if l%2 == 0 {
+		return (arr[l/2] + arr[l/2-1]) / 2, nil
 	}
 	return arr[l/2], nil
+}
+
+// Day 11
+
+type Position struct {
+	row int
+	col int
+}
+
+type OctopusGrid struct {
+	energy          *[10][10]int
+	stage           int
+	totalFlashCount int
+}
+
+func (g *OctopusGrid) onGrid(p *Position) bool {
+	if p.row >= 0 && p.row < 10 && p.col >= 0 && p.col < 10 {
+		return true
+	}
+	return false
+}
+
+func (g *OctopusGrid) GetAdjacent(p *Position) []*Position {
+	var adjacentPositions []*Position
+	for rowDiff := -1; rowDiff <= 1; rowDiff++ {
+		for colDiff := -1; colDiff <= 1; colDiff++ {
+			ap := &Position{p.row + rowDiff, p.col + colDiff}
+			if g.onGrid(ap) && *ap != *p {
+				adjacentPositions = append(adjacentPositions, ap)
+			}
+		}
+	}
+	return adjacentPositions
+}
+
+func (g *OctopusGrid) IncreaseEnergy(p *Position) {
+	// We only want energy to increase if the octopus has not flashed
+	if g.stage == 0 || g.energy[p.row][p.col] > 0 {
+		g.energy[p.row][p.col]++
+	}
+}
+
+func (g *OctopusGrid) Flash(p *Position) {
+	g.totalFlashCount++
+	g.energy[p.row][p.col] = 0
+	for _, ap := range g.GetAdjacent(p) {
+		g.IncreaseEnergy(ap)
+	}
+}
+
+func (g *OctopusGrid) Step() {
+	g.stage = 0
+	for row := 0; row < 10; row++ {
+		for col := 0; col < 10; col++ {
+			p := &Position{row, col}
+			g.IncreaseEnergy(p)
+		}
+	}
+	g.stage = 1
+	iterationFlashCount := 1
+	for iterationFlashCount > 0 {
+		iterationFlashCount = 0
+		for row := 0; row < 10; row++ {
+			for col := 0; col < 10; col++ {
+				p := &Position{row, col}
+				if g.energy[row][col] >= 10 {
+					iterationFlashCount++
+					g.Flash(p)
+				}
+			}
+		}
+	}
+}
+
+func (g *OctopusGrid) isSynchronised() bool {
+	for row := 0; row < 10; row++ {
+		for col := 0; col < 10; col++ {
+			if g.energy[row][col] != 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func parseOctopusGrid(input *advent.Input) *OctopusGrid {
+	g := new(OctopusGrid)
+	g.energy = new([10][10]int)
+	for i, line := range *input {
+		l := runesToInts(getRuneSlice(line))
+		for j, energyLevel := range l {
+			g.energy[i][j] = energyLevel
+		}
+	}
+	return g
+}
+
+// Day 12
+
+type Vertex string
+
+func (s *Vertex) isLarge() bool {
+	for _, letter := range *s {
+		if int(letter) >= 97 && int(letter) <= 122 {
+			return false
+		}
+	}
+	return true
+}
+
+type Edge struct {
+	X Vertex
+	Y Vertex
+}
+
+type CaveGraph struct {
+	V mapset.Set
+	E mapset.Set
+}
+
+type Path []Vertex
+
+func (p *Path) hasDoubleSmallVisit() bool {
+	counts := make(map[Vertex]int)
+	for _, v := range *p {
+		if v.isLarge() {
+			continue
+		}
+		counts[v]++
+		if counts[v] == 2 {
+			return true
+		}
+	}
+	return false
+}
+
+func (p *Path) Contains(v Vertex) bool {
+	for _, p := range *p {
+		if p == v {
+			return true
+		}
+	}
+	return false
+}
+
+func (p *Path) IsComplete() bool {
+	return (*p)[len(*p)-1] == "end"
+}
+
+func parseCaveGraph(input *advent.Input) *CaveGraph {
+	cg := new(CaveGraph)
+	cg.V = mapset.NewSet()
+	cg.E = mapset.NewSet()
+	for _, line := range *input {
+		vertices := strings.SplitN(line, "-", 2)
+		x, y := Vertex(vertices[0]), Vertex(vertices[1])
+		cg.V.Add(x)
+		cg.V.Add(y)
+		cg.E.Add(Edge{X: x, Y: y})
+	}
+	return cg
+}
+
+func (cg *CaveGraph) GetAdjacent(v Vertex) []Vertex {
+	var adj []Vertex
+	for _, edge := range cg.E.ToSlice() {
+		e := edge.(Edge)
+		if e.X == v {
+			adj = append(adj, e.Y)
+		}
+		if e.Y == v {
+			adj = append(adj, e.X)
+		}
+	}
+	return adj
+}
+
+func PartAIsValid(path Path, vertex Vertex) bool {
+	return vertex.isLarge() || !path.Contains(vertex)
+}
+
+func PartBIsValid(path Path, vertex Vertex) bool {
+	if vertex.isLarge() {
+		return true
+	}
+	if vertex == "start" {
+		return false
+	}
+	if path.Contains(vertex) {
+		if path.hasDoubleSmallVisit() {
+			return false
+		}
+	}
+	return true
+}
+
+func (cg *CaveGraph) Walk(paths []Path, isValid func(Path, Vertex) bool) []Path {
+	allComplete := true
+	var validPaths []Path
+	for _, path := range paths {
+		if path.IsComplete() {
+			validPaths = append(validPaths, path)
+			continue
+		}
+		allComplete = false
+		for _, vertex := range cg.GetAdjacent(path[len(path)-1]) {
+			if !isValid(path, vertex) {
+				continue
+			}
+			validPath := make(Path, len(path)+1)
+			copy(validPath, append(path, vertex))
+			validPaths = append(validPaths, validPath)
+		}
+	}
+	if allComplete {
+		return validPaths
+	}
+	return cg.Walk(validPaths, isValid)
+}
+
+// Day 13
+
+type Dot [2]int
+
+type Fold struct {
+	axis int
+	at   int
+}
+
+type Origami struct {
+	dots  mapset.Set
+	folds []Fold
+}
+
+func parseOrigami(input *advent.Input) *Origami {
+	dot := regexp.MustCompile("^[0-9]+,[0-9]+$")
+	fold := regexp.MustCompile("^fold along [x|y]=[0-9]+$")
+	var o Origami
+	o.dots = mapset.NewSet()
+	for _, line := range *input {
+		if dot.MatchString(line) {
+			coords, _ := stringsToInts(strings.SplitN(line, ",", 2))
+			o.dots.Add(Dot{coords[0], coords[1]})
+			continue
+		}
+		if fold.MatchString(line) {
+			chunks := strings.SplitN(line, " ", 3)
+			spec := strings.SplitN(chunks[2], "=", 2)
+			at, _ := strconv.Atoi(spec[1])
+			axis := map[string]int{"x": 0, "y": 1}[spec[0]]
+			o.folds = append(o.folds, Fold{axis, at})
+		}
+	}
+	return &o
+}
+
+func (o *Origami) Fold(n int) {
+	if n < 0 || n >= len(o.folds) {
+		return
+	}
+	fold := o.folds[n]
+	for _, d := range o.dots.ToSlice() {
+		dot := d.(Dot)
+		if dot[fold.axis] > fold.at {
+			newDot := dot
+			newDot[fold.axis] = 2*fold.at - dot[fold.axis]
+			o.dots.Add(newDot)
+			o.dots.Remove(dot)
+		}
+	}
+}
+
+func (o *Origami) Print() {
+	width := math.MaxInt64
+	height := math.MaxInt64
+	for _, fold := range o.folds {
+		if fold.axis == 0 && fold.at < width {
+			width = fold.at
+		}
+		if fold.axis == 1 && fold.at < height {
+			height = fold.at
+		}
+	}
+	pretty := make([][]string, height)
+	for row := range pretty {
+		for col := 0; col < width; col++ {
+			pretty[row] = append(pretty[row], " ")
+			if o.dots.Contains(Dot{col, row}) {
+				pretty[row][col] = "#"
+			}
+		}
+	}
+	for row := 0; row < height; row++ {
+		for col := 0; col < width; col++ {
+			fmt.Print(pretty[row][col])
+		}
+		fmt.Print("\n")
+	}
 }
