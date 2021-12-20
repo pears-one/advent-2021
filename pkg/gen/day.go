@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	usage         = "usage: %s <day int>\n"
-	errDayExists  = "day exists, creation stopping"
-	errFileCreate = "failed to create directory: %s"
-	solutionsPath = "pkg/solutions"
-	pkgFormat     = "day%d"
+	usage                = "usage: %s <day int>\n"
+	errDayExists         = "day exists, creation stopping"
+	errFileCreate        = "failed to create directory: %s"
+	solutionsPath        = "pkg/solutions"
+	pkgFormat            = "day%d"
 	pkgDeclarationFormat = "package %s\n\n"
-	importString = `import "github.com/evanfpearson/advent-2021/pkg/advent"`
+	importString         = `import "github.com/evanfpearson/advent-2021/pkg/advent"`
 )
 
 var (
@@ -35,10 +35,9 @@ var (
 	fTemplate = "func %s(input *advent.Input) (int, error) {\n\treturn 0, nil\n}\n"
 )
 
-
 type AOCFile struct {
 	name string
-	fn string
+	fn   string
 }
 
 func main() {

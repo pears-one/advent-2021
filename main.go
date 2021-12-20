@@ -46,5 +46,3 @@ func main() {
 	runner.Run(13, day13.A)
 	runner.Run(13, day13.B)
 }
-
-

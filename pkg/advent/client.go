@@ -11,8 +11,8 @@ import (
 
 type client struct {
 	http.Client
-	host string
-	year int
+	host   string
+	year   int
 	cookie string
 }
 
@@ -76,8 +76,8 @@ func (c *client) initRequest(method, address string, body io.Reader) (*http.Requ
 		return nil, err
 	}
 	req.AddCookie(&http.Cookie{
-		Name:       "session",
-		Value:      c.cookie,
+		Name:  "session",
+		Value: c.cookie,
 	})
 	return req, nil
 }

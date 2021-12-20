@@ -8,7 +8,7 @@ import (
 
 const (
 	start = "start"
-	end = "end"
+	end   = "end"
 )
 
 type Vertex string

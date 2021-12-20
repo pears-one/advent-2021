@@ -22,5 +22,5 @@ func B(input *advent.Input) (int, error) {
 			depth += aim * inst.Distance
 		}
 	}
-	return depth*x, nil
+	return depth * x, nil
 }

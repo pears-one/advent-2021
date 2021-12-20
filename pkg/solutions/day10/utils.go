@@ -9,11 +9,11 @@ import (
 
 var (
 	closeByOpens = map[rune]rune{
-	'{': '}',
-	'[': ']',
-	'(': ')',
-	'<': '>',
-}
+		'{': '}',
+		'[': ']',
+		'(': ')',
+		'<': '>',
+	}
 	scoreByBracketA = map[rune]int{
 		')': 3,
 		']': 57,

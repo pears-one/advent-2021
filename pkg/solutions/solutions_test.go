@@ -19,8 +19,8 @@ import (
 )
 
 func TestSolutions(t *testing.T) {
-	tests := []struct{
-		day int
+	tests := []struct {
+		day      int
 		expected int
 		solution advent.Solution
 	}{

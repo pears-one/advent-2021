@@ -2,17 +2,17 @@ package utils
 
 type (
 	Stack struct {
-		top *node
+		top    *node
 		length int
 	}
 	node struct {
 		value interface{}
-		prev *node
+		prev  *node
 	}
 )
 
 func NewStack() *Stack {
-	return &Stack{nil,0}
+	return &Stack{nil, 0}
 }
 
 func (s *Stack) Len() int {

@@ -13,8 +13,8 @@ func B(input *advent.Input) (int, error) {
 		return 0, err
 	}
 	for i := 1; i < len(depths)-windowSize+1; i++ {
-		a := depths[i:i+windowSize]
-		b := depths[i-1:i+windowSize-1]
+		a := depths[i : i+windowSize]
+		b := depths[i-1 : i+windowSize-1]
 		if utils.Sum(a) > utils.Sum(b) {
 			numIncreases++
 		}

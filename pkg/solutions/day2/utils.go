@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	up = "up"
-	down = "down"
+	up      = "up"
+	down    = "down"
 	forward = "forward"
 )
 

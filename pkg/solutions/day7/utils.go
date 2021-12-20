@@ -21,13 +21,13 @@ func LinearUsage(diff int) int {
 }
 
 func TriangularUsage(diff int) int {
-	return utils.Abs(diff)*(utils.Abs(diff)+1)/2
+	return utils.Abs(diff) * (utils.Abs(diff) + 1) / 2
 }
 
 func (c *CrabPositions) FuelUsageToPosition(p int, usage func(int) int) int {
 	s := 0
 	for _, cp := range *c {
-		s += usage(cp-p)
+		s += usage(cp - p)
 	}
 	return s
 }
