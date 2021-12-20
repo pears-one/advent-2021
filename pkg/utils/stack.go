@@ -1,4 +1,4 @@
-package solutions
+package utils
 
 type (
 	Stack struct {

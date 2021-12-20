@@ -34,7 +34,7 @@ type Client interface {
 	GetInput(day int) (*Input, error)
 }
 
-func NewClient(cookie string) (Client,error) {
+func NewClient(cookie string) (Client, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, err

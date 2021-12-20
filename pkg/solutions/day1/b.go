@@ -5,7 +5,7 @@ import (
 	"github.com/evanfpearson/advent-2021/pkg/utils"
 )
 
-func PartB(input *advent.Input) (int, error) {
+func B(input *advent.Input) (int, error) {
 	numIncreases := 0
 	windowSize := 3
 	depths, err := input.ToInt()

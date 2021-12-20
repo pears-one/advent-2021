@@ -2,7 +2,7 @@ package day1
 
 import "github.com/evanfpearson/advent-2021/pkg/advent"
 
-func PartA(input *advent.Input) (int, error) {
+func A(input *advent.Input) (int, error) {
 	numIncreases := 0
 	depths, err := input.ToInt()
 	if err != nil {

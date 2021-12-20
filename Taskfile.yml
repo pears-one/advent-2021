@@ -1,0 +1,7 @@
+version: '3'
+
+tasks:
+  build-gen:
+    cmds:
+      - go build -o build/gen pkg/gen/day.go
+    silent: true
