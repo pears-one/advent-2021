@@ -7,6 +7,7 @@ import (
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day11"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day12"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day13"
+	"github.com/evanfpearson/advent-2021/pkg/solutions/day14"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day2"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day3"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day4"
@@ -45,4 +46,5 @@ func main() {
 	runner.Run(12, day12.B)
 	runner.Run(13, day13.A)
 	runner.Run(13, day13.B)
+	runner.Run(14, day14.A)
 }

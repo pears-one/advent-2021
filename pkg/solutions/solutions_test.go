@@ -7,6 +7,7 @@ import (
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day11"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day12"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day13"
+	"github.com/evanfpearson/advent-2021/pkg/solutions/day14"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day2"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day3"
 	"github.com/evanfpearson/advent-2021/pkg/solutions/day4"
@@ -153,6 +154,11 @@ func TestSolutions(t *testing.T) {
 			13,
 			16,
 			day13.B,
+		},
+		{
+			14,
+			1588,
+			day14.A,
 		},
 	}
 	for _, test := range tests {
