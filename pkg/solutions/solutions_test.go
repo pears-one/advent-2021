@@ -160,6 +160,11 @@ func TestSolutions(t *testing.T) {
 			1588,
 			day14.A,
 		},
+		{
+			14,
+			2188189693529,
+			day14.B,
+		},
 	}
 	for _, test := range tests {
 		out, _ := test.solution(&testCases[test.day-1])

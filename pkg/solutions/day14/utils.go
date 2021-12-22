@@ -7,46 +7,57 @@ import (
 	"strings"
 )
 
-type InsertionRules map[string]string
+type PolymerizationDevice struct {
+	pairCount map[string]int
+	charCount map[string]int
+	rules     map[string]string
+}
 
-func parse(input *advent.Input) (string, *InsertionRules) {
+func parse(input *advent.Input) *PolymerizationDevice {
 	template := regexp.MustCompile("^[A-Z]+$")
 	rule := regexp.MustCompile("^[A-Z]{2} -> [A-Z]$")
 
-	var polymerTemplate string
-	insertionRules := make(InsertionRules)
+	device := new(PolymerizationDevice)
+	device.charCount = make(map[string]int)
+	device.pairCount = make(map[string]int)
+	device.rules = make(map[string]string)
 
 	for _, line := range *input {
 		if template.MatchString(line) {
-			polymerTemplate = line
+			device.charCount[string(line[0])]++
+			for i := 1; i < len(line); i++ {
+				device.pairCount[string(line[i-1])+string(line[i])]++
+				device.charCount[string(line[i])]++
+			}
 		}
 		if rule.MatchString(line) {
 			r := strings.SplitN(line, " -> ", 2)
-			insertionRules[r[0]] = r[1]
+			device.rules[r[0]] = r[1]
 		}
 	}
-	return polymerTemplate, &insertionRules
+	return device
 }
 
-func makeInsertions(template string, rules *InsertionRules) string {
-	var newTemplate string
-	newTemplate += string(template[0])
-	for i := 1; i < len(template); i++ {
-		injection := (*rules)[string(template[i-1]) + string(template[i])]
-		newTemplate += injection
-		newTemplate += string(template[i])
+func (pd *PolymerizationDevice) makeInsertions() {
+	newCount := make(map[string]int)
+	for k, v := range pd.pairCount {
+		newCount[k] = v
 	}
-	return newTemplate
+	for pair, count := range pd.pairCount {
+		newPairA := string(pair[0]) + pd.rules[pair]
+		newPairB := pd.rules[pair] + string(pair[1])
+		pd.charCount[pd.rules[pair]] += count
+		newCount[newPairA] += count
+		newCount[newPairB] += count
+		newCount[pair] -= count
+	}
+	pd.pairCount = newCount
 }
 
-func getScore(template string) int {
-	occurrences := make(map[rune]int)
-	for _, char := range template {
-		occurrences[char] += 1
-	}
+func (pd *PolymerizationDevice) getScore() int {
 	max := 0
 	min := math.MaxInt64
-	for _, c := range occurrences {
+	for _, c := range pd.charCount {
 		if c < min {
 			min = c
 		}
