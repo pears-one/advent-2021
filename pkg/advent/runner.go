@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 const CookieVar = "ADVENT_COOKIE"
@@ -30,12 +31,13 @@ func (r *runner) Run(day int, s Solution) {
 		fmt.Printf("Day %d Error reading Advent input: %s", day, err.Error())
 		return
 	}
+	start := time.Now()
 	answer, err := s(input)
 	if err != nil {
 		fmt.Printf("Day %d Error within Solution: %s", day, err.Error())
 		return
 	}
-	fmt.Printf("Day %d Answer: %v\n", day, answer)
+	fmt.Printf("Day %d Answer: %v - took %s\n", day, answer, time.Since(start))
 }
 
 func getEnvVar(name string) string {

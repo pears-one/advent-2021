@@ -9,4 +9,3 @@ Other nice Golang implementations:
 ## TODO
 
 - Be more purposeful about what should be exported https://goreportcard.com/report/github.com/evanfpearson/advent-2021
-- Time each solution
