@@ -77,10 +77,14 @@ func GetRuneSlice(s string) []rune {
 	return r
 }
 
+func RuneToInt(r rune) int {
+	return int(r - '0')
+}
+
 func RunesToInts(runes []rune) []int {
 	ints := make([]int, len(runes))
 	for i, runeValue := range runes {
-		ints[i] = int(runeValue - '0')
+		ints[i] = RuneToInt(runeValue)
 	}
 	return ints
 }
