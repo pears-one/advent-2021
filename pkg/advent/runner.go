@@ -13,15 +13,15 @@ const CookieVar = "ADVENT_COOKIE"
 type Solution func(input *Input) (int, error)
 
 type Runner interface {
-	Run(day int, s Solution)
+	Run(year, day int, s Solution)
 }
 
 type runner struct {
 	cookie string
 }
 
-func (r *runner) Run(day int, s Solution) {
-	client, err := NewClient(r.cookie)
+func (r *runner) Run(year, day int, s Solution) {
+	client, err := NewClient(year, r.cookie)
 	if err != nil {
 		log.Fatalf("Day %d Error creating Advent Client: %s", day, err.Error())
 		return
